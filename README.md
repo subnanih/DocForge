@@ -4,7 +4,7 @@
 
 DocForge is an AI-first documentation platform designed for the modern development workflow. Built for teams who use AI extensively and need a seamless way to store, organize, and share their AI-generated insights, prompts, and documentation.
 
-![DocForge Dashboard](Screenshots/Screenshot%202025-08-31%20at%207.25.12%20PM.png)
+![DocForge Dashboard](Screenshots/Screenshot%202025-08-31%20at%207.25.12PM.png)
 
 ## 🤖 Why DocForge?
 
@@ -19,7 +19,7 @@ As AI becomes integral to development workflows, the gap between AI-generated co
 - **Markdown Editor** - Live preview with syntax highlighting
 - **RESTful APIs** - Complete programmatic access
 
-![Documentation Interface](Screenshots/Screenshot%202025-08-31%20at%207.26.19%20PM.png)
+![Documentation Interface](Screenshots/Screenshot%202025-08-31%20at%207.26.19PM.png)
 
 ## 🚀 Quick Start
 
@@ -61,7 +61,7 @@ The application will be available at:
 - **API Server**: http://localhost:3001
 - **Frontend**: http://localhost:3000
 
-![Editor Interface](Screenshots/Screenshot%202025-08-31%20at%207.28.29%20PM.png)
+![Editor Interface](Screenshots/Screenshot%202025-08-31%20at%207.28.29PM.png)
 
 ## 🔧 Configuration
 
@@ -86,7 +86,7 @@ BASE_DOMAIN=docforge.com
 2. Configure SSL certificate for wildcard domain
 3. Update `BASE_DOMAIN` in environment variables
 
-![Custom Domains](Screenshots/Screenshot%202025-08-31%20at%207.28.35%20PM.png)
+![Custom Domains](Screenshots/Screenshot%202025-08-31%20at%207.28.35PM.png)
 
 ## 🤖 MCP Integration
 
@@ -119,7 +119,7 @@ const response = await mcp.create_page({
 });
 ```
 
-![MCP Integration](Screenshots/Screenshot%202025-08-31%20at%207.29.06%20PM.png)
+![MCP Integration](Screenshots/Screenshot%202025-08-31%20at%207.29.06PM.png)
 
 ## 📚 Usage
 
@@ -152,7 +152,7 @@ curl -X POST https://your-domain.com/api/pages \
   }'
 ```
 
-![API Documentation](Screenshots/Screenshot%202025-08-31%20at%207.29.35%20PM.png)
+![API Documentation](Screenshots/Screenshot%202025-08-31%20at%207.29.35PM.png)
 
 ## 🎨 Customization
 
@@ -170,7 +170,7 @@ DocForge includes interactive CSS examples for common customizations:
 - Typography
 - Animations
 
-![Customization Options](Screenshots/Screenshot%202025-08-31%20at%207.44.00%20PM.png)
+![Customization Options](Screenshots/Screenshot%202025-08-31%20at%207.44.00PM.png)
 
 ## 🔒 Security Features
 
