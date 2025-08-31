@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <%- include('partials/navbar') %>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Documentation Editor</h1>
+                    <p class="text-gray-600 mt-1">Create and edit your documentation with AI assistance</p>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="preview-btn" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200">
+                        <i class="fas fa-eye mr-2"></i>
+                        Preview
+                    </button>
+                    <button id="save-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                        <i class="fas fa-save mr-2"></i>
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Editor Form -->
+            <div class="lg:col-span-3">
+                <form id="editor-form" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+                                Title *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="title" 
+                                name="title" 
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Enter page title"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label for="slug" class="block text-sm font-medium text-gray-700 mb-2">
+                                URL Slug *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="slug" 
+                                name="slug" 
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="url-friendly-slug"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                                Category *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="category" 
+                                name="category" 
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="e.g., getting-started, api, guides"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label for="weight" class="block text-sm font-medium text-gray-700 mb-2">
+                                Order Weight
+                            </label>
+                            <input 
+                                type="number" 
+                                id="weight" 
+                                name="weight" 
+                                value="100"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="100"
+                            >
+                            <p class="text-sm text-gray-500 mt-1">Lower numbers appear first (e.g., 1, 2, 3...)</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="tags" class="block text-sm font-medium text-gray-700 mb-2">
+                            Tags
+                        </label>
+                        <input 
+                            type="text" 
+                            id="tags" 
+                            name="tags" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="tag1, tag2, tag3"
+                        >
+                    </div>
+
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <label for="content" class="block text-sm font-medium text-gray-700">
+                                Content *
+                            </label>
+                            <div class="flex space-x-2">
+                                <button type="button" onclick="insertTemplate('api')" class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">API Doc</button>
+                                <button type="button" onclick="insertTemplate('guide')" class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Guide</button>
+                                <button type="button" onclick="insertTemplate('troubleshoot')" class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded">Troubleshoot</button>
+                            </div>
+                        </div>
+                        <textarea 
+                            id="content" 
+                            name="content" 
+                            required
+                            rows="20"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                            placeholder="Write your documentation in Markdown..."
+                        ></textarea>
+                        <p class="text-sm text-gray-500 mt-1">
+                            Supports Markdown syntax. Use Ctrl+S to save, Ctrl+P to preview.
+                        </p>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-gray-500">
+                            <span id="word-count">0 words</span> • 
+                            <span id="char-count">0 characters</span>
+                        </div>
+                        <div class="flex space-x-4">
+                            <button type="button" id="draft-btn" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200">
+                                Save as Draft
+                            </button>
+                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                <i class="fas fa-check mr-2"></i>
+                                Publish
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="space-y-6">
+                    <!-- AI Assistant -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-robot mr-2 text-blue-600"></i>
+                            AI Assistant
+                        </h3>
+                        <div class="space-y-3">
+                            <button onclick="improveContent()" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors duration-200">
+                                <i class="fas fa-magic mr-2"></i>
+                                Improve Content
+                            </button>
+                            <button onclick="checkGrammar()" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 rounded transition-colors duration-200">
+                                <i class="fas fa-spell-check mr-2"></i>
+                                Check Grammar
+                            </button>
+                            <button onclick="generateSummary()" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-purple-50 hover:text-purple-600 rounded transition-colors duration-200">
+                                <i class="fas fa-compress-alt mr-2"></i>
+                                Generate Summary
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-bolt mr-2 text-yellow-600"></i>
+                            Quick Actions
+                        </h3>
+                        <div class="space-y-3">
+                            <button onclick="insertCodeBlock()" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors duration-200">
+                                <i class="fas fa-code mr-2"></i>
+                                Insert Code Block
+                            </button>
+                            <button onclick="insertTable()" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors duration-200">
+                                <i class="fas fa-table mr-2"></i>
+                                Insert Table
+                            </button>
+                            <button onclick="insertImage()" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors duration-200">
+                                <i class="fas fa-image mr-2"></i>
+                                Insert Image
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Preview -->
+                    <div id="preview-panel" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hidden">
+                        <h3 class="font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-eye mr-2 text-green-600"></i>
+                            Preview
+                        </h3>
+                        <div id="preview-content" class="prose prose-sm max-w-none">
+                            <!-- Preview content will appear here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        let isPreviewMode = false;
+        
+        // Initialize editor
+        document.addEventListener('DOMContentLoaded', function() {
+            // If editing existing page, populate form fields
+            <% if (editPage) { %>
+                document.getElementById('title').value = <%- JSON.stringify(editPage.title) %>;
+                document.getElementById('slug').value = <%- JSON.stringify(editPage.slug) %>;
+                document.getElementById('category').value = <%- JSON.stringify(editPage.category) %>;
+                document.getElementById('content').value = <%- JSON.stringify(editPage.content) %>;
+                document.getElementById('weight').value = <%= editPage.weight || 999 %>;
+                
+                // Set tags if they exist
+                <% if (editPage.tags && editPage.tags.length > 0) { %>
+                    document.getElementById('tags').value = <%- JSON.stringify(editPage.tags.join(', ')) %>;
+                <% } %>
+                
+                // Update word count
+                const content = document.getElementById('content').value;
+                const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+                const chars = content.length;
+                document.getElementById('word-count').textContent = `${words} words`;
+                document.getElementById('char-count').textContent = `${chars} characters`;
+                
+                // Update page title
+                document.title = 'Edit: <%= editPage.title %> - DocForge';
+                
+                // Update form action for editing
+                isEditing = true;
+                editingPageId = '<%= editPage._id %>';
+            <% } %>
+        });
+        
+        // Track editing state
+        let isEditing = <%= editPage ? 'true' : 'false' %>;
+        let editingPageId = '<%= editPage ? editPage._id : "" %>';
+        
+        // Auto-generate slug from title
+        document.getElementById('title').addEventListener('input', function() {
+            const slug = this.value
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim();
+            document.getElementById('slug').value = slug;
+        });
+
+        // Word and character count
+        document.getElementById('content').addEventListener('input', function() {
+            const content = this.value;
+            const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+            const chars = content.length;
+            
+            document.getElementById('word-count').textContent = `${words} words`;
+            document.getElementById('char-count').textContent = `${chars} characters`;
+            
+            // Auto-save
+            clearTimeout(window.autoSaveTimeout);
+            window.autoSaveTimeout = setTimeout(autoSave, 2000);
+        });
+
+        // Preview toggle
+        document.getElementById('preview-btn').addEventListener('click', function() {
+            isPreviewMode = !isPreviewMode;
+            const previewPanel = document.getElementById('preview-panel');
+            const previewContent = document.getElementById('preview-content');
+            const content = document.getElementById('content').value;
+            
+            if (isPreviewMode) {
+                previewContent.innerHTML = marked.parse(content);
+                previewPanel.classList.remove('hidden');
+                this.innerHTML = '<i class="fas fa-edit mr-2"></i>Edit';
+                this.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+                this.classList.add('bg-green-600', 'hover:bg-green-700');
+            } else {
+                previewPanel.classList.add('hidden');
+                this.innerHTML = '<i class="fas fa-eye mr-2"></i>Preview';
+                this.classList.remove('bg-green-600', 'hover:bg-green-700');
+                this.classList.add('bg-gray-600', 'hover:bg-gray-700');
+            }
+        });
+
+        // Form submission
+        document.getElementById('editor-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await savePage(false);
+        });
+
+        // Save functions
+        async function savePage(isDraft = false) {
+            const formData = new FormData(document.getElementById('editor-form'));
+            const data = Object.fromEntries(formData.entries());
+            
+            // Process tags
+            if (data.tags) {
+                data.tags = data.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+            }
+            
+            // Process weight
+            if (data.weight) {
+                data.weight = parseInt(data.weight) || 100;
+            }
+            
+            try {
+                const apiKey = new URLSearchParams(window.location.search).get('apiKey');
+                let response;
+                
+                if (isEditing && editingPageId) {
+                    // Update existing page
+                    response = await fetch(`/api/pages/${editingPageId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-API-Key': apiKey
+                        },
+                        body: JSON.stringify(data)
+                    });
+                } else {
+                    // Create new page
+                    response = await fetch('/api/pages', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-API-Key': apiKey
+                        },
+                        body: JSON.stringify(data)
+                    });
+                }
+                
+                if (!response.ok) {
+                    throw new Error('Failed to save page');
+                }
+                
+                const result = await response.json();
+                
+                if (isEditing) {
+                    showNotification(isDraft ? 'Draft updated!' : 'Page updated successfully!', 'success');
+                } else {
+                    showNotification(isDraft ? 'Draft saved!' : 'Page published successfully!', 'success');
+                    // Switch to editing mode after first save
+                    isEditing = true;
+                    editingPageId = result._id;
+                    // Update URL to include edit parameter
+                    const newUrl = new URL(window.location);
+                    newUrl.searchParams.set('edit', result._id);
+                    window.history.replaceState({}, '', newUrl);
+                }
+                
+                if (!isDraft) {
+                    setTimeout(() => {
+                        window.location.href = `/docs/${result.category}/${result.slug}?apiKey=${apiKey}`;
+                    }, 1500);
+                }
+                
+            } catch (error) {
+                showNotification(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function autoSave() {
+            // Implement auto-save logic
+            console.log('Auto-saving...');
+        }
+
+        // Template functions
+        function insertTemplate(type) {
+            const content = document.getElementById('content');
+            let template = '';
+            
+            switch(type) {
+                case 'api':
+                    template = `# API Endpoint
+
+## Overview
+Brief description of what this endpoint does.
+
+## Request
+\`\`\`http
+POST /api/endpoint
+Content-Type: application/json
+\`\`\`
+
+## Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| param1    | string | Yes | Description |
+
+## Response
+\`\`\`json
+{
+  "success": true,
+  "data": {}
+}
+\`\`\`
+
+## Examples
+\`\`\`bash
+curl -X POST https://api.example.com/endpoint \\
+  -H "Content-Type: application/json" \\
+  -d '{"param1": "value"}'
+\`\`\``;
+                    break;
+                case 'guide':
+                    template = `# Step-by-Step Guide
+
+## Overview
+Brief description of what this guide covers.
+
+## Prerequisites
+- Requirement 1
+- Requirement 2
+
+## Steps
+
+### Step 1: First Action
+Description and code example.
+
+### Step 2: Second Action
+Description and code example.
+
+## Troubleshooting
+Common issues and solutions.
+
+## Next Steps
+What to do after completing this guide.`;
+                    break;
+                case 'troubleshoot':
+                    template = `# Troubleshooting Guide
+
+## Problem Description
+Brief description of the issue.
+
+## Symptoms
+- Symptom 1
+- Symptom 2
+
+## Possible Causes
+1. Cause 1
+2. Cause 2
+
+## Solutions
+
+### Solution 1
+Step-by-step instructions.
+
+### Solution 2
+Alternative approach.
+
+## Prevention
+How to avoid this issue in the future.`;
+                    break;
+            }
+            
+            content.value = template;
+            content.focus();
+        }
+
+        // Quick action functions
+        function insertCodeBlock() {
+            const content = document.getElementById('content');
+            const code = '\n```javascript\n// Your code here\n```\n';
+            insertAtCursor(content, code);
+        }
+
+        function insertTable() {
+            const content = document.getElementById('content');
+            const table = '\n| Column 1 | Column 2 | Column 3 |\n|----------|----------|----------|\n| Row 1    | Data     | Data     |\n| Row 2    | Data     | Data     |\n';
+            insertAtCursor(content, table);
+        }
+
+        function insertImage() {
+            const content = document.getElementById('content');
+            const image = '\n![Alt text](image-url)\n';
+            insertAtCursor(content, image);
+        }
+
+        function insertAtCursor(textarea, text) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            textarea.value = textarea.value.substring(0, start) + text + textarea.value.substring(end);
+            textarea.selectionStart = textarea.selectionEnd = start + text.length;
+            textarea.focus();
+        }
+
+        // AI functions (placeholder)
+        function improveContent() {
+            showNotification('AI content improvement coming soon!', 'info');
+        }
+
+        function checkGrammar() {
+            showNotification('Grammar check coming soon!', 'info');
+        }
+
+        function generateSummary() {
+            showNotification('Summary generation coming soon!', 'info');
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                savePage(true);
+            }
+            
+            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                e.preventDefault();
+                document.getElementById('preview-btn').click();
+            }
+        });
+    </script>
+</body>
+</html>

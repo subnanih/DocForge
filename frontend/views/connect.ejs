@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <%- include('partials/navbar') %>
+    
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-gradient-to-r from-green-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-sign-in-alt text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Connect to Tenant</h1>
+                <p class="text-gray-600">Enter your API key to access your documentation workspace</p>
+            </div>
+
+            <!-- Form -->
+            <form id="connect-form" class="space-y-6">
+                <div>
+                    <label for="apiKey" class="block text-sm font-medium text-gray-700 mb-2">
+                        API Key *
+                    </label>
+                    <textarea 
+                        id="apiKey" 
+                        name="apiKey" 
+                        required
+                        rows="3"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 font-mono text-sm"
+                        placeholder="Enter your tenant API key here..."
+                    ></textarea>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Don't have an API key? 
+                        <a href="/create-tenant" class="text-blue-600 hover:text-blue-700 font-medium">Create a new tenant</a>
+                    </p>
+                </div>
+
+                <div class="flex items-center">
+                    <input 
+                        type="checkbox" 
+                        id="saveApiKey" 
+                        checked
+                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    >
+                    <label for="saveApiKey" class="ml-2 block text-sm text-gray-700">
+                        Remember this API key for quick access
+                    </label>
+                </div>
+
+                <button 
+                    type="submit" 
+                    id="connect-btn"
+                    data-original-text="Connect to Tenant"
+                    class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200 btn-animate"
+                >
+                    <i class="fas fa-plug mr-2"></i>
+                    Connect to Tenant
+                </button>
+            </form>
+
+            <!-- Saved Tenants -->
+            <div id="saved-tenants" class="mt-8 hidden">
+                <h4 class="font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-history mr-2"></i>
+                    Saved Tenants
+                </h4>
+                <div id="saved-tenants-list" class="space-y-3">
+                    <!-- Saved tenants will appear here -->
+                </div>
+            </div>
+
+            <!-- Info Box -->
+            <div class="mt-8 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h4 class="font-semibold text-green-800 mb-2">
+                    <i class="fas fa-shield-alt mr-2"></i>
+                    Secure Connection
+                </h4>
+                <ul class="text-sm text-green-700 space-y-1">
+                    <li>• Your API key is used for secure authentication</li>
+                    <li>• All data is encrypted and isolated per tenant</li>
+                    <li>• API keys are never stored in browser localStorage</li>
+                    <li>• Each session is independent and secure</li>
+                </ul>
+            </div>
+
+            <!-- Help Section -->
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 class="font-semibold text-blue-800 mb-2">
+                    <i class="fas fa-question-circle mr-2"></i>
+                    Need Help?
+                </h4>
+                <div class="text-sm text-blue-700 space-y-2">
+                    <p><strong>Lost your API key?</strong> Contact your organization administrator or create a new tenant.</p>
+                    <p><strong>API key not working?</strong> Make sure you copied the complete key without extra spaces.</p>
+                    <p><strong>New to DocForge?</strong> <a href="/create-tenant" class="underline hover:no-underline">Create your first tenant</a> to get started.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>
+    
+    <script src="/js/main.js"></script>
+    <script>
+        // API Key management functions
+        function getSavedTenants() {
+            const saved = localStorage.getItem('docforge_tenants');
+            return saved ? JSON.parse(saved) : [];
+        }
+
+        function saveTenant(apiKey, tenantInfo) {
+            const tenants = getSavedTenants();
+            const existing = tenants.find(t => t.apiKey === apiKey);
+            
+            if (!existing) {
+                tenants.push({
+                    apiKey: apiKey,
+                    name: tenantInfo.name,
+                    domain: tenantInfo.domain,
+                    lastUsed: new Date().toISOString()
+                });
+                localStorage.setItem('docforge_tenants', JSON.stringify(tenants));
+            } else {
+                // Update last used time
+                existing.lastUsed = new Date().toISOString();
+                localStorage.setItem('docforge_tenants', JSON.stringify(tenants));
+            }
+        }
+
+        function removeTenant(apiKey) {
+            const tenants = getSavedTenants();
+            const filtered = tenants.filter(t => t.apiKey !== apiKey);
+            localStorage.setItem('docforge_tenants', JSON.stringify(filtered));
+            displaySavedTenants();
+        }
+
+        function displaySavedTenants() {
+            const tenants = getSavedTenants();
+            const container = document.getElementById('saved-tenants');
+            const list = document.getElementById('saved-tenants-list');
+            
+            if (tenants.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+            
+            container.classList.remove('hidden');
+            
+            // Sort by last used (most recent first)
+            tenants.sort((a, b) => new Date(b.lastUsed) - new Date(a.lastUsed));
+            
+            list.innerHTML = tenants.map(tenant => `
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                    <div class="flex-1 cursor-pointer" onclick="connectToSavedTenant('${tenant.apiKey}')">
+                        <h5 class="font-semibold text-gray-900">${tenant.name}</h5>
+                        <p class="text-sm text-gray-600">${tenant.domain}</p>
+                        <p class="text-xs text-gray-500">Last used: ${new Date(tenant.lastUsed).toLocaleDateString()}</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="connectToSavedTenant('${tenant.apiKey}')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors duration-200">
+                            Connect
+                        </button>
+                        <button onclick="removeTenant('${tenant.apiKey}')" class="text-red-500 hover:text-red-700 transition-colors duration-200" title="Remove">
+                            <i class="fas fa-trash text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function connectToSavedTenant(apiKey) {
+            document.getElementById('apiKey').value = apiKey;
+            document.getElementById('connect-form').dispatchEvent(new Event('submit'));
+        }
+
+        // Form submission
+        document.getElementById('connect-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const connectBtn = document.getElementById('connect-btn');
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const saveApiKey = document.getElementById('saveApiKey').checked;
+            
+            if (!apiKey) {
+                showNotification('Please enter your API key', 'error');
+                return;
+            }
+            
+            setLoading(connectBtn, true);
+            
+            try {
+                // Test the API key by fetching tenant info
+                const response = await fetch('/api/tenant/info', {
+                    headers: {
+                        'X-API-Key': apiKey
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Invalid API key or tenant not found');
+                }
+                
+                const tenantInfo = await response.json();
+                
+                // Save tenant if checkbox is checked
+                if (saveApiKey) {
+                    saveTenant(apiKey, tenantInfo);
+                    showNotification(`Tenant "${tenantInfo.name}" saved for quick access!`, 'success');
+                }
+                
+                // Redirect to dashboard with API key
+                window.location.href = `/dashboard?apiKey=${apiKey}`;
+                
+            } catch (error) {
+                console.error('Connection error:', error);
+                showNotification(`Connection failed: ${error.message}`, 'error');
+            } finally {
+                setLoading(connectBtn, false);
+            }
+        });
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('apiKey').focus();
+            displaySavedTenants();
+        });
+    </script>
+</body>
+</html>

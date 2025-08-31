@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <%- include('partials/navbar') %>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+                    <% if (tenant) { %>
+                        <p class="text-gray-600 mt-1">Welcome back to <span class="font-semibold text-blue-600"><%= tenant.name %></span></p>
+                    <% } %>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="/editor?apiKey=<%= apiKey %>" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                        <i class="fas fa-plus mr-2"></i>
+                        New Page
+                    </a>
+                    <a href="/credentials?apiKey=<%= apiKey %>" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200">
+                        <i class="fas fa-key mr-2"></i>
+                        Credentials
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-file-alt text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Total Pages</p>
+                        <p class="text-2xl font-bold text-gray-900"><%= pages.length %></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-key text-green-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Credentials</p>
+                        <p class="text-2xl font-bold text-gray-900"><%= credentials.length %></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-folder text-purple-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Categories</p>
+                        <p class="text-2xl font-bold text-gray-900"><%= [...new Set(pages.map(p => p.category))].length %></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clock text-orange-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Last Updated</p>
+                        <p class="text-sm font-bold text-gray-900">
+                            <% if (pages.length > 0) { %>
+                                <%= new Date(Math.max(...pages.map(p => new Date(p.updatedAt)))).toLocaleDateString() %>
+                            <% } else { %>
+                                Never
+                            <% } %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Recent Pages -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-gray-900">Recent Pages</h2>
+                        <a href="/docs?apiKey=<%= apiKey %>" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                            View All <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <% if (pages.length === 0) { %>
+                        <div class="text-center py-8">
+                            <i class="fas fa-file-alt text-gray-300 text-4xl mb-4"></i>
+                            <p class="text-gray-500 mb-4">No pages yet</p>
+                            <a href="/editor?apiKey=<%= apiKey %>" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                Create Your First Page
+                            </a>
+                        </div>
+                    <% } else { %>
+                        <div class="space-y-4">
+                            <% 
+                            // Sort by weight first for logical order, then by update date for recent activity
+                            const orderedPages = pages.sort((a, b) => {
+                                // For recent pages, prioritize recently updated
+                                return new Date(b.updatedAt) - new Date(a.updatedAt);
+                            }).slice(0, 5);
+                            %>
+                            <% orderedPages.forEach(page => { %>
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                                    <div class="flex-1">
+                                        <h3 class="font-semibold text-gray-900 mb-1">
+                                            <a href="/docs/<%= page.category %>/<%= page.slug %>?apiKey=<%= apiKey %>" class="hover:text-blue-600">
+                                                <%= page.title %>
+                                            </a>
+                                        </h3>
+                                        <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                                                <%= page.category %>
+                                            </span>
+                                            <span>
+                                                <i class="fas fa-clock mr-1"></i>
+                                                <%= new Date(page.updatedAt).toLocaleDateString() %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <a href="/editor?apiKey=<%= apiKey %>&edit=<%= page._id %>" class="text-gray-400 hover:text-blue-600">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="/docs/<%= page.category %>/<%= page.slug %>?apiKey=<%= apiKey %>" class="text-gray-400 hover:text-green-600">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-900">Quick Actions</h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <a href="/editor?apiKey=<%= apiKey %>" class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg hover:shadow-md transition-all duration-200 group">
+                            <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
+                                <i class="fas fa-plus text-white text-xl"></i>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 mb-2">New Page</h3>
+                            <p class="text-sm text-gray-600">Create documentation</p>
+                        </a>
+
+                        <a href="/credentials?apiKey=<%= apiKey %>" class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg hover:shadow-md transition-all duration-200 group">
+                            <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
+                                <i class="fas fa-key text-white text-xl"></i>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 mb-2">Credentials</h3>
+                            <p class="text-sm text-gray-600">Manage secrets</p>
+                        </a>
+
+                        <a href="/docs?apiKey=<%= apiKey %>" class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg hover:shadow-md transition-all duration-200 group">
+                            <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
+                                <i class="fas fa-book text-white text-xl"></i>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 mb-2">Browse Docs</h3>
+                            <p class="text-sm text-gray-600">View all pages</p>
+                        </a>
+
+                        <a href="#" onclick="exportData()" class="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-lg hover:shadow-md transition-all duration-200 group">
+                            <div class="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
+                                <i class="fas fa-download text-white text-xl"></i>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 mb-2">Export</h3>
+                            <p class="text-sm text-gray-600">Download data</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>
+    
+    <script src="/js/main.js"></script>
+    <script>
+        function exportData() {
+            // Export functionality
+            const data = {
+                tenant: <%- JSON.stringify(tenant) %>,
+                pages: <%- JSON.stringify(pages) %>,
+                credentials: <%- JSON.stringify(credentials) %>
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `docforge-export-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <%- include('partials/navbar') %>
+    
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">DocForge API Documentation</h1>
+            <p class="text-xl text-gray-600">Complete reference for the DocForge REST API</p>
+        </div>
+
+        <!-- Quick Start -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Quick Start</h2>
+            <div class="bg-gray-900 text-gray-100 p-4 rounded-lg mb-4">
+                <code>curl -X GET https://docforge.com/api/pages \<br>
+  -H "X-API-Key: YOUR_API_KEY"</code>
+            </div>
+            <p class="text-gray-600">All API requests require an API key in the <code class="bg-gray-100 px-2 py-1 rounded">X-API-Key</code> header.</p>
+        </div>
+
+        <!-- Endpoints -->
+        <div class="space-y-8">
+            <!-- Tenants -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Tenants</h2>
+                
+                <div class="space-y-6">
+                    <div class="border-l-4 border-blue-500 pl-6">
+                        <div class="flex items-center space-x-4 mb-2">
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">POST</span>
+                            <code class="text-lg font-mono">/api/tenant</code>
+                        </div>
+                        <p class="text-gray-600 mb-4">Create a new tenant organization</p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold mb-2">Request Body:</h4>
+                            <pre class="text-sm"><code>{
+  "name": "My Organization",
+  "domain": "myorg.com"
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="border-l-4 border-blue-500 pl-6">
+                        <div class="flex items-center space-x-4 mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">GET</span>
+                            <code class="text-lg font-mono">/api/tenant/info</code>
+                        </div>
+                        <p class="text-gray-600">Get current tenant information</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pages -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Documentation Pages</h2>
+                
+                <div class="space-y-6">
+                    <div class="border-l-4 border-green-500 pl-6">
+                        <div class="flex items-center space-x-4 mb-2">
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">POST</span>
+                            <code class="text-lg font-mono">/api/pages</code>
+                        </div>
+                        <p class="text-gray-600 mb-4">Create a new documentation page</p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold mb-2">Request Body:</h4>
+                            <pre class="text-sm"><code>{
+  "title": "Getting Started",
+  "slug": "getting-started",
+  "content": "# Getting Started\n\nWelcome to our docs!",
+  "category": "guides",
+  "tags": ["tutorial", "basics"],
+  "weight": 100
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="border-l-4 border-blue-500 pl-6">
+                        <div class="flex items-center space-x-4 mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">GET</span>
+                            <code class="text-lg font-mono">/api/pages</code>
+                        </div>
+                        <p class="text-gray-600">Get all documentation pages</p>
+                    </div>
+
+                    <div class="border-l-4 border-yellow-500 pl-6">
+                        <div class="flex items-center space-x-4 mb-2">
+                            <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">PUT</span>
+                            <code class="text-lg font-mono">/api/pages/:id</code>
+                        </div>
+                        <p class="text-gray-600">Update an existing page</p>
+                    </div>
+
+                    <div class="border-l-4 border-red-500 pl-6">
+                        <div class="flex items-center space-x-4 mb-2">
+                            <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">DELETE</span>
+                            <code class="text-lg font-mono">/api/pages/:id</code>
+                        </div>
+                        <p class="text-gray-600">Delete a page</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Credentials -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Credentials</h2>
+                
+                <div class="space-y-6">
+                    <div class="border-l-4 border-green-500 pl-6">
+                        <div class="flex items-center space-x-4 mb-2">
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">POST</span>
+                            <code class="text-lg font-mono">/api/credentials</code>
+                        </div>
+                        <p class="text-gray-600 mb-4">Store new service credentials</p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold mb-2">Request Body:</h4>
+                            <pre class="text-sm"><code>{
+  "environment": "production",
+  "serviceName": "AWS S3",
+  "credentialType": "api-key",
+  "credentials": {
+    "apiKey": "your-secret-key",
+    "endpoint": "https://s3.amazonaws.com"
+  }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="border-l-4 border-blue-500 pl-6">
+                        <div class="flex items-center space-x-4 mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">GET</span>
+                            <code class="text-lg font-mono">/api/credentials</code>
+                        </div>
+                        <p class="text-gray-600">Get all stored credentials</p>
+                    </div>
+
+                    <div class="border-l-4 border-blue-500 pl-6">
+                        <div class="flex items-center space-x-4 mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">GET</span>
+                            <code class="text-lg font-mono">/api/credentials/:id</code>
+                        </div>
+                        <p class="text-gray-600">Get individual credential (for secret reveal)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Format -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Response Format</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Success Response</h3>
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <pre class="text-sm"><code>{
+  "success": true,
+  "data": { ... },
+  "message": "Operation completed successfully"
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Error Response</h3>
+                        <div class="bg-red-50 p-4 rounded-lg">
+                            <pre class="text-sm"><code>{
+  "error": "Error message description",
+  "code": 400
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authentication -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Authentication</h2>
+                
+                <div class="space-y-4">
+                    <p class="text-gray-600">All API requests require authentication using an API key in the request header:</p>
+                    
+                    <div class="bg-gray-900 text-gray-100 p-4 rounded-lg">
+                        <code>X-API-Key: your-tenant-api-key</code>
+                    </div>
+
+                    <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+                        <div class="flex items-start space-x-2">
+                            <i class="fas fa-exclamation-triangle text-yellow-600 mt-1"></i>
+                            <div>
+                                <h4 class="font-semibold text-yellow-800">Security Note</h4>
+                                <p class="text-yellow-700 text-sm">Keep your API key secure and never expose it in client-side code. Each tenant has a unique API key for data isolation.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>
+    
+    <script src="/js/main.js"></script>
+</body>
+</html>

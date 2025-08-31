@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .markdown-content { 
+            line-height: 1.7; 
+            font-size: 16px;
+        }
+        .markdown-content h1 { 
+            @apply text-3xl font-bold text-gray-900 mb-8 mt-0 border-b border-gray-200 pb-4; 
+            line-height: 1.2;
+        }
+        .markdown-content h2 { 
+            @apply text-2xl font-bold text-gray-900 mb-6 mt-12; 
+            line-height: 1.3;
+        }
+        .markdown-content h3 { 
+            @apply text-xl font-semibold text-gray-900 mb-4 mt-8; 
+            line-height: 1.4;
+        }
+        .markdown-content h4 { 
+            @apply text-lg font-semibold text-gray-900 mb-3 mt-6; 
+            line-height: 1.4;
+        }
+        .markdown-content p { 
+            @apply text-gray-700 mb-6 leading-relaxed; 
+            line-height: 1.8;
+        }
+        .markdown-content ul, .markdown-content ol { 
+            @apply mb-6 text-gray-700 pl-6; 
+            line-height: 1.7;
+        }
+        .markdown-content ul { 
+            @apply list-disc; 
+        }
+        .markdown-content ol { 
+            @apply list-decimal; 
+        }
+        .markdown-content li { 
+            @apply mb-3 leading-relaxed; 
+            line-height: 1.7;
+        }
+        .markdown-content code { 
+            @apply bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm font-mono; 
+            word-break: break-all;
+            max-width: 100%;
+        }
+        .markdown-content pre { 
+            @apply bg-gray-900 text-gray-100 p-6 rounded-lg mb-6 overflow-x-auto; 
+            line-height: 1.5;
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+        .markdown-content pre code { 
+            @apply bg-transparent text-gray-100 p-0; 
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .markdown-content blockquote { 
+            @apply border-l-4 border-blue-500 pl-6 italic text-gray-600 mb-6 py-2; 
+        }
+        .markdown-content a { 
+            @apply text-blue-600 hover:text-blue-800 underline; 
+        }
+        .markdown-content table { 
+            @apply w-full border-collapse border border-gray-300 mb-6; 
+        }
+        .markdown-content th { 
+            @apply border border-gray-300 px-4 py-3 bg-gray-100 font-semibold text-left; 
+        }
+        .markdown-content td { 
+            @apply border border-gray-300 px-4 py-3; 
+        }
+        .markdown-content hr { 
+            @apply border-gray-300 my-8; 
+        }
+        .markdown-content img { 
+            @apply max-w-full h-auto rounded-lg shadow-sm mb-6; 
+        }
+        
+        /* TOC Styles */
+        .toc-link {
+            @apply block py-1 px-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors duration-200;
+            line-height: 1.4;
+        }
+        .toc-link.active {
+            @apply text-blue-600 bg-blue-50 font-medium;
+        }
+        .toc-h1 { @apply font-semibold text-gray-900; }
+        .toc-h2 { @apply pl-3; }
+        .toc-h3 { @apply pl-6 text-xs; }
+        .toc-h4 { @apply pl-9 text-xs text-gray-500; }
+        .toc-h5 { @apply pl-12 text-xs text-gray-500; }
+        .toc-h6 { @apply pl-15 text-xs text-gray-500; }
+        
+        /* Page Navigation */
+        .page-nav-item {
+            @apply block p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <%- include('partials/navbar') %>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Breadcrumb -->
+        <nav class="mb-8">
+            <ol class="flex items-center space-x-2 text-sm text-gray-500">
+                <li><a href="/docs?apiKey=<%= apiKey %>" class="hover:text-blue-600">Documentation</a></li>
+                <li><i class="fas fa-chevron-right text-xs"></i></li>
+                <li><a href="/docs?apiKey=<%= apiKey %>&category=<%= doc.category %>" class="hover:text-blue-600 capitalize"><%= doc.category %></a></li>
+                <li><i class="fas fa-chevron-right text-xs"></i></li>
+                <li class="text-gray-900 font-medium"><%= doc.title %></li>
+            </ol>
+        </nav>
+
+        <div class="grid grid-cols-1 lg:grid-cols-6 gap-8">
+            <!-- Left Sidebar - Navigation -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-24">
+                    <h3 class="font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-folder mr-2"></i>
+                        <%= doc.category %>
+                    </h3>
+                    <div id="category-pages" class="space-y-1">
+                        <!-- Category pages will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-4">
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                    <!-- Header -->
+                    <header class="mb-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                                <%= doc.category %>
+                            </span>
+                            <div class="flex items-center space-x-3">
+                                <a href="/editor?apiKey=<%= apiKey %>&edit=<%= doc._id %>" class="text-gray-400 hover:text-blue-600 transition-colors duration-200" title="Edit Page">
+                                    <i class="fas fa-edit text-lg"></i>
+                                </a>
+                                <button onclick="sharePage()" class="text-gray-400 hover:text-green-600 transition-colors duration-200" title="Share Page">
+                                    <i class="fas fa-share-alt text-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <h1 class="text-4xl font-bold text-gray-900 mb-6"><%= doc.title %></h1>
+                        
+                        <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                            <span>
+                                <i class="fas fa-calendar-alt mr-1"></i>
+                                Created <%= new Date(doc.createdAt).toLocaleDateString() %>
+                            </span>
+                            <span>
+                                <i class="fas fa-clock mr-1"></i>
+                                Updated <%= new Date(doc.updatedAt).toLocaleDateString() %>
+                            </span>
+                            <% if (doc.tags && doc.tags.length > 0) { %>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-tags text-gray-400"></i>
+                                    <% doc.tags.forEach((tag, index) => { %>
+                                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs"><%= tag %></span>
+                                    <% }) %>
+                                </div>
+                            <% } %>
+                        </div>
+                    </header>
+
+                    <!-- Content -->
+                    <div class="markdown-content prose max-w-none" id="content">
+                        <!-- Content will be rendered here -->
+                    </div>
+                </article>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="space-y-6">
+                    <!-- Table of Contents -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-24">
+                        <h3 class="font-semibold text-gray-900 mb-4 text-sm uppercase tracking-wide">
+                            On this page
+                        </h3>
+                        <div id="toc" class="space-y-1 text-sm">
+                            <!-- TOC will be generated here -->
+                        </div>
+                    </div>
+
+                    <!-- Most Popular -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4 text-sm uppercase tracking-wide">
+                            Most Popular
+                        </h3>
+                        <div id="popular-pages" class="space-y-3">
+                            <!-- Popular pages will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Page Actions -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4 text-sm uppercase tracking-wide">
+                            Actions
+                        </h3>
+                        <div class="space-y-3">
+                            <a href="/editor?apiKey=<%= apiKey %>&edit=<%= doc._id %>" class="flex items-center text-blue-600 hover:text-blue-700 transition-colors duration-200 text-sm">
+                                <i class="fas fa-edit mr-2"></i>
+                                Edit Page
+                            </a>
+                            <button onclick="exportPage()" class="flex items-center text-green-600 hover:text-green-700 transition-colors duration-200 text-sm">
+                                <i class="fas fa-download mr-2"></i>
+                                Export Markdown
+                            </button>
+                            <button onclick="printPage()" class="flex items-center text-purple-600 hover:text-purple-700 transition-colors duration-200 text-sm">
+                                <i class="fas fa-print mr-2"></i>
+                                Print Page
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        // Render markdown content with proper HTML entity handling
+        const rawContent = <%- JSON.stringify(doc.content) %>;
+        const contentElement = document.getElementById('content');
+        
+        // Configure marked for better HTML entity handling
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            sanitize: false
+        });
+        
+        contentElement.innerHTML = marked.parse(rawContent);
+
+        // Generate table of contents with better spacing
+        function generateTOC() {
+            const headings = contentElement.querySelectorAll('h2, h3, h4'); // Only show h2-h4 for cleaner TOC
+            const toc = document.getElementById('toc');
+            
+            if (headings.length === 0) {
+                toc.innerHTML = '<p class="text-gray-500 text-sm">No headings found</p>';
+                return;
+            }
+            
+            let tocHTML = '';
+            headings.forEach((heading, index) => {
+                const id = `heading-${index}`;
+                heading.id = id;
+                
+                const level = parseInt(heading.tagName.charAt(1));
+                const levelClass = `toc-h${level}`;
+                
+                // Clean up heading text and limit length
+                const headingText = heading.textContent.trim();
+                const displayText = headingText.length > 50 ? headingText.substring(0, 47) + '...' : headingText;
+                
+                tocHTML += `
+                    <a href="#${id}" class="toc-link ${levelClass}" data-heading="${id}" title="${headingText}">
+                        ${displayText}
+                    </a>
+                `;
+            });
+            
+            toc.innerHTML = tocHTML;
+            
+            // Add scroll spy functionality
+            setupScrollSpy();
+        }
+
+        // Load pages in the same category for left sidebar
+        async function loadCategoryPages() {
+            try {
+                const apiKey = new URLSearchParams(window.location.search).get('apiKey');
+                const response = await fetch(`/api/pages`, {
+                    headers: { 'X-API-Key': apiKey }
+                });
+                
+                if (response.ok) {
+                    const pages = await response.json();
+                    const categoryPages = pages
+                        .filter(p => p.category === '<%= doc.category %>')
+                        .sort((a, b) => {
+                            // First sort by weight (lower weight = higher priority)
+                            if (a.weight !== b.weight) {
+                                return (a.weight || 999) - (b.weight || 999);
+                            }
+                            // Then sort alphabetically by title
+                            return a.title.localeCompare(b.title);
+                        });
+                    
+                    const categoryContainer = document.getElementById('category-pages');
+                    
+                    if (categoryPages.length === 0) {
+                        categoryContainer.innerHTML = '<p class="text-gray-500 text-sm">No pages in this category</p>';
+                        return;
+                    }
+                    
+                    categoryContainer.innerHTML = categoryPages.map(page => `
+                        <a href="/docs/${page.category}/${page.slug}?apiKey=${apiKey}" 
+                           class="block py-2 px-3 text-sm rounded transition-colors duration-200 ${page._id === '<%= doc._id %>' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'}">
+                            ${page.title}
+                        </a>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Failed to load category pages:', error);
+            }
+        }
+
+        // Load popular pages for right sidebar
+        async function loadPopularPages() {
+            try {
+                const apiKey = new URLSearchParams(window.location.search).get('apiKey');
+                const response = await fetch(`/api/pages`, {
+                    headers: { 'X-API-Key': apiKey }
+                });
+                
+                if (response.ok) {
+                    const pages = await response.json();
+                    // Sort by most recent as a proxy for popular
+                    const popularPages = pages
+                        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+                        .slice(0, 5);
+                    
+                    const popularContainer = document.getElementById('popular-pages');
+                    
+                    if (popularPages.length === 0) {
+                        popularContainer.innerHTML = '<p class="text-gray-500 text-sm">No popular pages</p>';
+                        return;
+                    }
+                    
+                    popularContainer.innerHTML = popularPages.map(page => `
+                        <a href="/docs/${page.category}/${page.slug}?apiKey=${apiKey}" 
+                           class="block text-sm text-blue-600 hover:text-blue-700 transition-colors duration-200">
+                            ${page.title}
+                        </a>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Failed to load popular pages:', error);
+            }
+        }
+
+        // Scroll spy for TOC
+        function setupScrollSpy() {
+            const headings = contentElement.querySelectorAll('h2, h3, h4'); // Match TOC filtering
+            const tocLinks = document.querySelectorAll('.toc-link');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.id;
+                        tocLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.dataset.heading === id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, {
+                rootMargin: '-20% 0px -80% 0px'
+            });
+            
+            headings.forEach(heading => observer.observe(heading));
+        }
+
+        // Page actions
+        function sharePage() {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({
+                    title: '<%= doc.title %>',
+                    url: url
+                });
+            } else {
+                copyToClipboard(url, 'Page URL copied to clipboard!');
+            }
+        }
+
+        function exportPage() {
+            const content = rawContent;
+            const blob = new Blob([content], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '<%= doc.slug %>.md';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function printPage() {
+            window.print();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            generateTOC();
+            loadCategoryPages();
+            loadPopularPages();
+            
+            // Highlight code blocks
+            Prism.highlightAll();
+            
+            // Smooth scroll for TOC links
+            document.querySelectorAll('.toc-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

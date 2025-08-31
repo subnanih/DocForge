@@ -1,0 +1,48 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= title %></title>
+
+<!-- Favicon -->
+<% if (typeof tenant !== 'undefined' && tenant && tenant.domainSettings && tenant.domainSettings.favicon) { %>
+    <link rel="icon" type="image/x-icon" href="<%= tenant.domainSettings.favicon %>">
+<% } else { %>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+<% } %>
+
+<!-- CSS -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="/css/style.css" rel="stylesheet">
+
+<!-- Custom CSS from branding -->
+<% if (typeof tenant !== 'undefined' && tenant && tenant.domainSettings && tenant.domainSettings.customCSS) { %>
+    <style>
+        <%= tenant.domainSettings.customCSS %>
+    </style>
+<% } %>
+
+<!-- Brand Color CSS Variables -->
+<% if (typeof tenant !== 'undefined' && tenant && tenant.domainSettings && tenant.domainSettings.brandColor) { %>
+    <style>
+        :root {
+            --brand-color: <%= tenant.domainSettings.brandColor %>;
+        }
+        
+        /* Apply brand color to common elements */
+        .bg-blue-600, .bg-blue-500 { background-color: <%= tenant.domainSettings.brandColor %> !important; }
+        .text-blue-600, .text-blue-500 { color: <%= tenant.domainSettings.brandColor %> !important; }
+        .border-blue-600, .border-blue-500 { border-color: <%= tenant.domainSettings.brandColor %> !important; }
+        .hover\\:bg-blue-700:hover { background-color: <%= tenant.domainSettings.brandColor %>dd !important; }
+        .hover\\:text-blue-700:hover { color: <%= tenant.domainSettings.brandColor %>dd !important; }
+        
+        /* Brand utility classes */
+        .bg-brand { background-color: <%= tenant.domainSettings.brandColor %> !important; }
+        .text-brand { color: <%= tenant.domainSettings.brandColor %> !important; }
+        .border-brand { border-color: <%= tenant.domainSettings.brandColor %> !important; }
+        
+        /* Gradient with brand color */
+        .bg-gradient-to-r.from-blue-600 { 
+            background: linear-gradient(to right, <%= tenant.domainSettings.brandColor %>, <%= tenant.domainSettings.brandColor %>aa) !important; 
+        }
+    </style>
+<% } %>

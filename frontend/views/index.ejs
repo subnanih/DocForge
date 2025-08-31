@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <%- include('partials/navbar') %>
+    
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div class="text-center">
+                <% if (tenant) { %>
+                    <!-- Tenant-specific hero -->
+                    <div class="flex justify-center mb-6">
+                        <div class="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                            <span class="text-white text-3xl font-bold"><%= tenant.name.charAt(0).toUpperCase() %></span>
+                        </div>
+                    </div>
+                    <h1 class="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
+                        <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            <%= tenant.name %>
+                        </span>
+                    </h1>
+                    <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                        Documentation Hub
+                    </p>
+                    <p class="text-lg text-gray-500 mb-12 max-w-2xl mx-auto">
+                        Welcome to <%= tenant.name %>'s documentation platform. 
+                        <% if (stats.totalPages > 0) { %>
+                            Explore <%= stats.totalPages %> pages across <%= stats.categories %> categories.
+                        <% } else { %>
+                            Get started by creating your first documentation page.
+                        <% } %>
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <% if (stats.totalPages > 0) { %>
+                            <a href="/docs?apiKey=<%= apiKey %>" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+                                <i class="fas fa-book mr-2"></i>
+                                Browse Documentation
+                            </a>
+                            <a href="/editor?apiKey=<%= apiKey %>" class="bg-white text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg border-2 border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200">
+                                <i class="fas fa-plus mr-2"></i>
+                                Add New Page
+                            </a>
+                        <% } else { %>
+                            <a href="/editor?apiKey=<%= apiKey %>" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+                                <i class="fas fa-plus mr-2"></i>
+                                Create First Page
+                            </a>
+                            <a href="/dashboard?apiKey=<%= apiKey %>" class="bg-white text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg border-2 border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200">
+                                <i class="fas fa-tachometer-alt mr-2"></i>
+                                Go to Dashboard
+                            </a>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <!-- Default DocForge hero -->
+                    <h1 class="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
+                        <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            DocForge
+                        </span>
+                    </h1>
+                    <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                        Where Great Documentation is Forged
+                    </p>
+                    <p class="text-lg text-gray-500 mb-12 max-w-2xl mx-auto">
+                        Multi-tenant documentation platform with AI-powered smart editing, 
+                        credential management, and seamless integrations.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="/create-tenant" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+                            <i class="fas fa-rocket mr-2"></i>
+                            Get Started
+                        </a>
+                        <a href="/connect" class="bg-white text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg border-2 border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200">
+                            <i class="fas fa-sign-in-alt mr-2"></i>
+                            Connect Existing
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+        
+        <!-- Floating Elements -->
+        <div class="absolute top-20 left-10 w-20 h-20 bg-blue-200 rounded-full opacity-50 animate-bounce"></div>
+        <div class="absolute top-40 right-20 w-16 h-16 bg-purple-200 rounded-full opacity-50 animate-pulse"></div>
+        <div class="absolute bottom-20 left-1/4 w-12 h-12 bg-indigo-200 rounded-full opacity-50 animate-bounce delay-1000"></div>
+    </section>
+
+    <% if (tenant && stats.totalPages > 0) { %>
+    <!-- Tenant Dashboard Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Your Documentation at a Glance</h2>
+                <p class="text-xl text-gray-600">Quick access to your most important content</p>
+            </div>
+            
+            <!-- Stats -->
+            <div class="grid md:grid-cols-4 gap-8 mb-16">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-file-alt text-blue-600 text-2xl"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 mb-2"><%= stats.totalPages %></div>
+                    <div class="text-gray-600">Total Pages</div>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-folder text-green-600 text-2xl"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 mb-2"><%= stats.categories %></div>
+                    <div class="text-gray-600">Categories</div>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-clock text-purple-600 text-2xl"></i>
+                    </div>
+                    <div class="text-lg font-bold text-gray-900 mb-2">
+                        <% if (stats.lastUpdated) { %>
+                            <%= stats.lastUpdated.toLocaleDateString() %>
+                        <% } else { %>
+                            Never
+                        <% } %>
+                    </div>
+                    <div class="text-gray-600">Last Updated</div>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-building text-orange-600 text-2xl"></i>
+                    </div>
+                    <div class="text-lg font-bold text-gray-900 mb-2"><%= tenant.name %></div>
+                    <div class="text-gray-600">Organization</div>
+                </div>
+            </div>
+
+            <!-- Recent Pages -->
+            <% if (stats.recentPages.length > 0) { %>
+                <div class="bg-gray-50 rounded-2xl p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold text-gray-900">Recent Updates</h3>
+                        <a href="/docs?apiKey=<%= apiKey %>" class="text-blue-600 hover:text-blue-700 font-medium">
+                            View All <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <% stats.recentPages.forEach(page => { %>
+                            <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                <h4 class="font-semibold text-gray-900 mb-2">
+                                    <a href="/docs/<%= page.category %>/<%= page.slug %>?apiKey=<%= apiKey %>" class="hover:text-blue-600">
+                                        <%= page.title %>
+                                    </a>
+                                </h4>
+                                <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+                                    <%= page.content.replace(/[#*`]/g, '').substring(0, 100) %>...
+                                </p>
+                                <div class="flex items-center justify-between text-xs text-gray-500">
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                        <%= page.category %>
+                                    </span>
+                                    <span><%= new Date(page.updatedAt).toLocaleDateString() %></span>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </section>
+    <% } %>
+
+    <!-- AI Documentation Prompt Guide -->
+    <section class="py-20 bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    <i class="fas fa-robot text-blue-600 mr-3"></i>
+                    AI Documentation Prompt
+                </h2>
+                <p class="text-xl text-gray-600">The perfect prompt to generate comprehensive, ordered documentation with AI</p>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-xl p-8 max-w-5xl mx-auto">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Copy this prompt to your AI assistant:</h3>
+                </div>
+                
+                <div class="bg-gray-900 text-gray-100 p-6 rounded-lg mb-6 relative">
+                    <button onclick="copyPrompt()" class="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors duration-200">
+                        <i class="fas fa-copy mr-1"></i> Copy
+                    </button>
+                    <pre class="text-sm leading-relaxed whitespace-pre-wrap" id="ai-prompt">Create comprehensive documentation for [YOUR PROJECT/API/SERVICE] using DocForge. Structure it as follows:
+
+**IMPORTANT**: Use proper weight ordering (lower numbers = higher priority):
+
+1. **Introduction** (weight: 1)
+   - What is [PROJECT NAME]?
+   - Key features and benefits
+   - Who should use this?
+
+2. **Getting Started** (weight: 10)
+   - Prerequisites
+   - Installation steps
+   - Quick start guide
+   - First example
+
+3. **Basic Concepts** (weight: 20)
+   - Core concepts explained
+   - Architecture overview
+   - Key terminology
+
+4. **API Reference** (weight: 30)
+   - Authentication
+   - Endpoints with examples
+   - Request/response formats
+   - Error codes
+
+5. **Advanced Usage** (weight: 40)
+   - Complex scenarios
+   - Best practices
+   - Performance optimization
+   - Integration patterns
+
+6. **Troubleshooting** (weight: 50)
+   - Common issues
+   - Debug steps
+   - FAQ
+
+**For each page, provide:**
+- Clear, descriptive title
+- Proper category (getting-started, api, guides, troubleshooting)
+- Relevant tags
+- Complete markdown content with code examples
+- Appropriate weight for logical ordering
+
+**Format each page as:**
+```
+Title: [Page Title]
+Category: [category-name]
+Weight: [number]
+Tags: [tag1, tag2, tag3]
+Content: [Full markdown content with examples]
+```
+
+Make it comprehensive, practical, and easy to follow!</pre>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-blue-50 p-6 rounded-lg">
+                        <h4 class="font-semibold text-blue-900 mb-3">
+                            <i class="fas fa-lightbulb mr-2"></i>
+                            Pro Tips
+                        </h4>
+                        <ul class="text-blue-800 text-sm space-y-2">
+                            <li>• Use weight 1-10 for essential pages</li>
+                            <li>• Weight 20-30 for detailed guides</li>
+                            <li>• Weight 40+ for advanced topics</li>
+                            <li>• Include real code examples</li>
+                            <li>• Add troubleshooting sections</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-green-50 p-6 rounded-lg">
+                        <h4 class="font-semibold text-green-900 mb-3">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            Best Results
+                        </h4>
+                        <ul class="text-green-800 text-sm space-y-2">
+                            <li>• Replace [YOUR PROJECT] with actual name</li>
+                            <li>• Be specific about your use case</li>
+                            <li>• Mention your tech stack</li>
+                            <li>• Include target audience details</li>
+                            <li>• Specify documentation style preference</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <p class="text-gray-600 mb-4">Works best with Claude, ChatGPT, or any AI assistant with DocForge MCP integration</p>
+                    <div class="flex justify-center space-x-4">
+                        <% if (tenant) { %>
+                            <a href="/editor?apiKey=<%= apiKey %>" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                <i class="fas fa-edit mr-2"></i>
+                                Start Creating Docs
+                            </a>
+                        <% } else { %>
+                            <a href="/create-tenant" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                <i class="fas fa-rocket mr-2"></i>
+                                Create Tenant First
+                            </a>
+                        <% } %>
+                        <a href="/api/docs" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors duration-200">
+                            <i class="fas fa-book mr-2"></i>
+                            API Reference
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Powerful Features</h2>
+                <p class="text-xl text-gray-600">Everything you need for modern documentation</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- AI-Powered Editor -->
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-xl hover:shadow-lg transition-shadow duration-300">
+                    <div class="w-16 h-16 bg-blue-500 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fas fa-brain text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">AI-Powered Editor</h3>
+                    <p class="text-gray-600 mb-4">Smart markdown editor with quality scoring, suggestions, and AI assistance for better documentation.</p>
+                    <ul class="text-sm text-gray-500 space-y-2">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Quality scoring</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>AI suggestions</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Template library</li>
+                    </ul>
+                </div>
+
+                <!-- Multi-Tenant -->
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-8 rounded-xl hover:shadow-lg transition-shadow duration-300">
+                    <div class="w-16 h-16 bg-purple-500 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fas fa-users text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Multi-Tenant</h3>
+                    <p class="text-gray-600 mb-4">Secure isolation for multiple organizations with role-based access and custom branding.</p>
+                    <ul class="text-sm text-gray-500 space-y-2">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Secure isolation</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Custom domains</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Role management</li>
+                    </ul>
+                </div>
+
+                <!-- MCP Integration -->
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-8 rounded-xl hover:shadow-lg transition-shadow duration-300">
+                    <div class="w-16 h-16 bg-green-500 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fas fa-plug text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">MCP Integration</h3>
+                    <p class="text-gray-600 mb-4">Model Context Protocol integration for AI assistants with 10+ built-in tools.</p>
+                    <ul class="text-sm text-gray-500 space-y-2">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Claude integration</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Q CLI support</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>10+ tools</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8 text-center text-white">
+                <div>
+                    <div class="text-4xl font-bold mb-2">10+</div>
+                    <div class="text-blue-100">MCP Tools</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold mb-2">∞</div>
+                    <div class="text-blue-100">Tenants</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold mb-2">100%</div>
+                    <div class="text-blue-100">Open Source</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold mb-2">24/7</div>
+                    <div class="text-blue-100">Available</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-gray-900 mb-6">Ready to Forge Great Documentation?</h2>
+            <p class="text-xl text-gray-600 mb-8">Join thousands of teams using DocForge to create, manage, and scale their documentation.</p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/create-tenant" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+                    <i class="fas fa-plus mr-2"></i>
+                    Create Your Tenant
+                </a>
+                <a href="https://github.com/subnanih/DocForge" target="_blank" class="bg-gray-800 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-700 transition-colors duration-200">
+                    <i class="fab fa-github mr-2"></i>
+                    View on GitHub
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <%- include('partials/footer') %>
+    
+    <script src="/js/main.js"></script>
+    <script>
+        function copyPrompt() {
+            const promptText = document.getElementById('ai-prompt').textContent;
+            copyToClipboard(promptText, 'AI prompt copied to clipboard! 🤖');
+        }
+    </script>
+</body>
+</html>

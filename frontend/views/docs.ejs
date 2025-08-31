@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <%- include('partials/navbar') %>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Documentation</h1>
+                    <p class="text-gray-600 mt-1">Browse and search your documentation</p>
+                </div>
+                <a href="/editor?apiKey=<%= apiKey %>" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                    <i class="fas fa-plus mr-2"></i>
+                    New Page
+                </a>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <div class="flex">
+                    <i class="fas fa-exclamation-triangle text-red-400 mr-3 mt-1"></i>
+                    <div>
+                        <h3 class="text-sm font-medium text-red-800">Error Loading Documentation</h3>
+                        <p class="text-sm text-red-700 mt-1"><%= error %></p>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- Search and Filters -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="search-input"
+                            placeholder="Search documentation..."
+                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="md:w-48">
+                    <select id="category-filter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">All Categories</option>
+                        <% categories.forEach(category => { %>
+                            <option value="<%= category %>" <%= selectedCategory === category ? 'selected' : '' %>>
+                                <%= category %>
+                            </option>
+                        <% }) %>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-24">
+                    <h3 class="font-semibold text-gray-900 mb-4">Categories</h3>
+                    <div class="space-y-2">
+                        <a href="/docs?apiKey=<%= apiKey %>" class="block px-3 py-2 rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 <%= !selectedCategory ? 'bg-blue-50 text-blue-600' : '' %>">
+                            <i class="fas fa-folder mr-2"></i>
+                            All (<%= pages.length %>)
+                        </a>
+                        <% categories.forEach(category => { %>
+                            <a href="/docs?apiKey=<%= apiKey %>&category=<%= category %>" class="block px-3 py-2 rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 <%= selectedCategory === category ? 'bg-blue-50 text-blue-600' : '' %>">
+                                <i class="fas fa-folder mr-2"></i>
+                                <%= category %> (<%= pages.filter(p => p.category === category).length %>)
+                            </a>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="lg:col-span-3">
+                <% if (pages.length === 0) { %>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+                        <i class="fas fa-file-alt text-gray-300 text-6xl mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">No documentation yet</h3>
+                        <p class="text-gray-600 mb-6">Get started by creating your first documentation page</p>
+                        <a href="/editor?apiKey=<%= apiKey %>" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                            <i class="fas fa-plus mr-2"></i>
+                            Create First Page
+                        </a>
+                    </div>
+                <% } else { %>
+                    <div class="space-y-6">
+                        <% 
+                        // Sort pages by weight first, then alphabetically
+                        const sortedPages = pages.sort((a, b) => {
+                            if (a.weight !== b.weight) {
+                                return (a.weight || 999) - (b.weight || 999);
+                            }
+                            return a.title.localeCompare(b.title);
+                        });
+                        %>
+                        <% sortedPages.forEach(page => { %>
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                                            <a href="/docs/<%= page.category %>/<%= page.slug %>?apiKey=<%= apiKey %>" class="hover:text-blue-600 transition-colors duration-200">
+                                                <%= page.title %>
+                                            </a>
+                                        </h3>
+                                        <p class="text-gray-600 mb-4 line-clamp-2">
+                                            <%= page.content.replace(/[#*`]/g, '').substring(0, 200) %>...
+                                        </p>
+                                        <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">
+                                                <%= page.category %>
+                                            </span>
+                                            <span>
+                                                <i class="fas fa-clock mr-1"></i>
+                                                Updated <%= new Date(page.updatedAt).toLocaleDateString() %>
+                                            </span>
+                                            <% if (page.tags && page.tags.length > 0) { %>
+                                                <span>
+                                                    <i class="fas fa-tags mr-1"></i>
+                                                    <%= page.tags.slice(0, 2).join(', ') %>
+                                                    <% if (page.tags.length > 2) { %>
+                                                        +<%= page.tags.length - 2 %> more
+                                                    <% } %>
+                                                </span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2 ml-4">
+                                        <a href="/editor?apiKey=<%= apiKey %>&edit=<%= page._id %>" class="text-gray-400 hover:text-blue-600 transition-colors duration-200" title="Edit">
+                                            <i class="fas fa-edit text-lg"></i>
+                                        </a>
+                                        <a href="/docs/<%= page.category %>/<%= page.slug %>?apiKey=<%= apiKey %>" class="text-gray-400 hover:text-green-600 transition-colors duration-200" title="View">
+                                            <i class="fas fa-eye text-lg"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>
+    
+    <script src="/js/main.js"></script>
+    <script>
+        // Search functionality
+        document.getElementById('search-input').addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            const pages = document.querySelectorAll('.space-y-6 > div');
+            
+            pages.forEach(page => {
+                const title = page.querySelector('h3').textContent.toLowerCase();
+                const content = page.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(query) || content.includes(query)) {
+                    page.style.display = 'block';
+                } else {
+                    page.style.display = 'none';
+                }
+            });
+        });
+
+        // Category filter
+        document.getElementById('category-filter').addEventListener('change', function() {
+            const apiKey = new URLSearchParams(window.location.search).get('apiKey');
+            const category = this.value;
+            const url = category ? 
+                `/docs?apiKey=${apiKey}&category=${category}` : 
+                `/docs?apiKey=${apiKey}`;
+            window.location.href = url;
+        });
+    </script>
+</body>
+</html>

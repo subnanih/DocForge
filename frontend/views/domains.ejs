@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <%- include('partials/navbar') %>
+    
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">Domain Settings</h1>
+            <p class="text-xl text-gray-600">Configure custom domains and branding for your documentation</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Domain Configuration -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-globe mr-3 text-blue-600"></i>
+                    Domain Configuration
+                </h2>
+                
+                <!-- Subdomain Setup -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Subdomain (Easy Setup)</h3>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <input 
+                            type="text" 
+                            id="subdomain"
+                            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="yourcompany"
+                        >
+                        <span class="text-gray-600">.docforge.com</span>
+                    </div>
+                    
+                    <!-- Subdomain Password -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Subdomain Password (Required for Security)</label>
+                        <input 
+                            type="password" 
+                            id="subdomainPassword"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Enter password for subdomain access"
+                            minlength="6"
+                        >
+                        <p class="text-sm text-gray-500 mt-1">Visitors will need this password to access your subdomain</p>
+                    </div>
+                    
+                    <button onclick="saveSubdomain()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                        <i class="fas fa-save mr-2"></i>
+                        Save Subdomain
+                    </button>
+                </div>
+
+                <!-- Custom Domain Setup -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Custom Domain (Advanced)</h3>
+                    <input 
+                        type="text" 
+                        id="customDomain"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+                        placeholder="docs.yourcompany.com"
+                    >
+                    <div class="flex space-x-3">
+                        <button onclick="saveCustomDomain()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors duration-200">
+                            <i class="fas fa-save mr-2"></i>
+                            Save Domain
+                        </button>
+                        <button onclick="verifyDomain()" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors duration-200">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            Verify Domain
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Current Status -->
+                <div id="domainStatus" class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-900 mb-2">Current Configuration</h4>
+                    <div id="statusContent">
+                        <!-- Status will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- DNS Instructions -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-cog mr-3 text-green-600"></i>
+                    DNS Setup Instructions
+                </h2>
+                
+                <div class="space-y-6">
+                    <!-- Subdomain Instructions -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3">For Subdomain:</h3>
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <p class="text-green-800 mb-2">✅ No DNS setup required!</p>
+                            <p class="text-sm text-green-700">Subdomains work automatically once saved.</p>
+                        </div>
+                    </div>
+
+                    <!-- Custom Domain Instructions -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3">For Custom Domain:</h3>
+                        <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                            <p class="text-blue-800 font-semibold mb-2">Add these DNS records:</p>
+                            <div class="bg-white p-3 rounded border font-mono text-sm">
+                                <div class="mb-2">
+                                    <strong>Type:</strong> A<br>
+                                    <strong>Name:</strong> @ (or your subdomain)<br>
+                                    <strong>Value:</strong> <span id="serverIP">Loading...</span>
+                                </div>
+                                <div>
+                                    <strong>Type:</strong> CNAME<br>
+                                    <strong>Name:</strong> www<br>
+                                    <strong>Value:</strong> docforge.com
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <p class="text-yellow-800 text-sm">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                DNS changes can take up to 24 hours to propagate. Use the verify button to check status.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Branding Section -->
+        <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">
+                <i class="fas fa-palette mr-3 text-purple-600"></i>
+                Branding & Customization
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Logo URL</label>
+                    <input 
+                        type="url" 
+                        id="logoUrl"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="https://yourcompany.com/logo.png"
+                    >
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Brand Color</label>
+                    <input 
+                        type="color" 
+                        id="brandColor"
+                        value="#3B82F6"
+                        class="w-full h-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Favicon URL</label>
+                    <input 
+                        type="url" 
+                        id="favicon"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="https://yourcompany.com/favicon.ico"
+                    >
+                </div>
+                
+                <div class="flex items-end">
+                    <button onclick="saveBranding()" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors duration-200">
+                        <i class="fas fa-save mr-2"></i>
+                        Save Branding
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Custom CSS</label>
+                <textarea 
+                    id="customCSS"
+                    rows="8"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                    placeholder="/* Add your custom CSS here */&#10;.navbar { background: linear-gradient(45deg, #667eea, #764ba2); }&#10;.card { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }"
+                ></textarea>
+                
+                <!-- CSS Examples -->
+                <div class="mt-3 p-4 bg-gray-50 rounded-lg">
+                    <h4 class="text-sm font-semibold text-gray-800 mb-3">💡 CSS Examples - Click to use:</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <!-- Navigation Styling -->
+                            <div>
+                                <p class="font-medium text-gray-700 mb-1">🎨 Navigation Styling:</p>
+                                <button onclick="insertCSS('nav')" class="text-left w-full p-2 bg-white rounded border hover:bg-blue-50 transition-colors">
+                                    <code class="text-xs text-blue-600">/* Custom navigation */&#10;.navbar { background: linear-gradient(135deg, #667eea, #764ba2) !important; }&#10;.navbar a { color: white !important; }</code>
+                                </button>
+                            </div>
+                            
+                            <!-- Card Styling -->
+                            <div>
+                                <p class="font-medium text-gray-700 mb-1">📦 Card Styling:</p>
+                                <button onclick="insertCSS('cards')" class="text-left w-full p-2 bg-white rounded border hover:bg-blue-50 transition-colors">
+                                    <code class="text-xs text-blue-600">/* Enhanced cards */&#10;.bg-white { box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; border-radius: 15px !important; }</code>
+                                </button>
+                            </div>
+                            
+                            <!-- Typography -->
+                            <div>
+                                <p class="font-medium text-gray-700 mb-1">📝 Typography:</p>
+                                <button onclick="insertCSS('typography')" class="text-left w-full p-2 bg-white rounded border hover:bg-blue-50 transition-colors">
+                                    <code class="text-xs text-blue-600">/* Custom fonts */&#10;@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');&#10;body { font-family: 'Inter', sans-serif !important; }</code>
+                                </button>
+                            </div>
+                            
+                            <!-- Button Styling -->
+                            <div>
+                                <p class="font-medium text-gray-700 mb-1">🔘 Button Styling:</p>
+                                <button onclick="insertCSS('buttons')" class="text-left w-full p-2 bg-white rounded border hover:bg-blue-50 transition-colors">
+                                    <code class="text-xs text-blue-600">/* Custom buttons */&#10;.bg-blue-600 { background: linear-gradient(45deg, #4f46e5, #7c3aed) !important; transform: translateY(0); transition: all 0.2s; }&#10;.bg-blue-600:hover { transform: translateY(-2px); }</code>
+                                </button>
+                            </div>
+                            
+                            <!-- Dark Mode -->
+                            <div>
+                                <p class="font-medium text-gray-700 mb-1">🌙 Dark Mode:</p>
+                                <button onclick="insertCSS('dark')" class="text-left w-full p-2 bg-white rounded border hover:bg-blue-50 transition-colors">
+                                    <code class="text-xs text-blue-600">/* Dark theme */&#10;body { background: #1a1a1a !important; color: #e5e5e5 !important; }&#10;.bg-white { background: #2d2d2d !important; }&#10;.text-gray-900 { color: #f5f5f5 !important; }</code>
+                                </button>
+                            </div>
+                            
+                            <!-- Animations -->
+                            <div>
+                                <p class="font-medium text-gray-700 mb-1">✨ Animations:</p>
+                                <button onclick="insertCSS('animations')" class="text-left w-full p-2 bg-white rounded border hover:bg-blue-50 transition-colors">
+                                    <code class="text-xs text-blue-600">/* Smooth animations */&#10;* { transition: all 0.3s ease !important; }&#10;.bg-white:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }</code>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Advanced Examples -->
+                        <div class="mt-4 pt-3 border-t border-gray-200">
+                            <p class="font-medium text-gray-700 mb-2">🚀 Advanced Examples:</p>
+                            <div class="grid grid-cols-1 gap-2">
+                                <button onclick="insertCSS('glassmorphism')" class="text-left p-2 bg-white rounded border hover:bg-blue-50 transition-colors">
+                                    <strong class="text-xs text-purple-600">Glassmorphism Effect:</strong>
+                                    <code class="text-xs text-gray-600 block mt-1">/* Glass cards */ .bg-white { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }</code>
+                                </button>
+                                
+                                <button onclick="insertCSS('neon')" class="text-left p-2 bg-white rounded border hover:bg-blue-50 transition-colors">
+                                    <strong class="text-xs text-green-600">Neon Glow Effect:</strong>
+                                    <code class="text-xs text-gray-600 block mt-1">/* Neon buttons */ .bg-blue-600 { box-shadow: 0 0 20px #4f46e5, 0 0 40px #4f46e5, 0 0 60px #4f46e5; }</code>
+                                </button>
+                                
+                                <button onclick="insertCSS('gradient')" class="text-left p-2 bg-white rounded border hover:bg-blue-50 transition-colors">
+                                    <strong class="text-xs text-pink-600">Animated Gradient Background:</strong>
+                                    <code class="text-xs text-gray-600 block mt-1">/* Animated gradient */ body { background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); background-size: 400% 400%; animation: gradient 15s ease infinite; } @keyframes gradient { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }</code>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="text-sm text-gray-500 mt-2">
+                    💡 <strong>Tip:</strong> Use <code>!important</code> to override existing styles. Test changes in browser dev tools first.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>
+    
+    <script src="/js/main.js"></script>
+    <script>
+        // Get API key from URL params or use the one passed from server
+        const urlParams = new URLSearchParams(window.location.search);
+        const apiKey = urlParams.get('apiKey') || '<%= apiKey %>';
+        
+        if (!apiKey) {
+            showNotification('No API key found. Please connect to a tenant first.', 'error');
+            setTimeout(() => {
+                window.location.href = '/connect';
+            }, 2000);
+        }
+        
+        // Load current domain settings
+        async function loadDomainSettings() {
+            try {
+                const response = await fetch('/api/tenant/info', {
+                    headers: { 'X-API-Key': apiKey }
+                });
+                
+                if (response.ok) {
+                    const tenant = await response.json();
+                    console.log('Tenant data:', tenant); // Debug log
+                    
+                    // Populate form fields
+                    document.getElementById('subdomain').value = tenant.subdomain || '';
+                    document.getElementById('customDomain').value = tenant.customDomain || '';
+                    
+                    if (tenant.domainSettings) {
+                        document.getElementById('logoUrl').value = tenant.domainSettings.logoUrl || '';
+                        document.getElementById('brandColor').value = tenant.domainSettings.brandColor || '#3B82F6';
+                        document.getElementById('favicon').value = tenant.domainSettings.favicon || '';
+                        document.getElementById('customCSS').value = tenant.domainSettings.customCSS || '';
+                    }
+                    
+                    // Update status
+                    updateDomainStatus(tenant);
+                } else {
+                    console.error('Failed to load tenant info:', response.status);
+                    showNotification('Failed to load domain settings', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading domain settings:', error);
+                showNotification('Failed to load domain settings', 'error');
+            }
+        }
+        
+        function updateDomainStatus(tenant) {
+            console.log('Updating domain status with tenant:', tenant); // Debug log
+            const statusContent = document.getElementById('statusContent');
+            let html = '';
+            
+            if (tenant.subdomain) {
+                console.log('Found subdomain:', tenant.subdomain); // Debug log
+                const subdomainUrl = `https://${tenant.subdomain}.docforge.com`;
+                html += `
+                    <div class="mb-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <strong class="text-green-800">Subdomain:</strong> 
+                                <span class="text-green-700">${tenant.subdomain}.docforge.com</span>
+                                <span class="text-green-600 ml-2">✅ Active</span>
+                            </div>
+                            <a href="${subdomainUrl}" target="_blank" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors duration-200">
+                                <i class="fas fa-external-link-alt mr-1"></i>
+                                Visit
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (tenant.customDomain) {
+                console.log('Found custom domain:', tenant.customDomain); // Debug log
+                const status = tenant.domainVerified ? '✅ Verified' : '⏳ Pending Verification';
+                const statusColor = tenant.domainVerified ? 'green' : 'yellow';
+                const customDomainUrl = `https://${tenant.customDomain}`;
+                
+                html += `
+                    <div class="mb-3 p-3 bg-${statusColor}-50 rounded-lg border border-${statusColor}-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <strong class="text-${statusColor}-800">Custom Domain:</strong> 
+                                <span class="text-${statusColor}-700">${tenant.customDomain}</span>
+                                <span class="text-${statusColor}-600 ml-2">${status}</span>
+                            </div>
+                            ${tenant.domainVerified ? `
+                                <a href="${customDomainUrl}" target="_blank" class="bg-${statusColor}-600 text-white px-3 py-1 rounded text-sm hover:bg-${statusColor}-700 transition-colors duration-200">
+                                    <i class="fas fa-external-link-alt mr-1"></i>
+                                    Visit
+                                </a>
+                            ` : `
+                                <button onclick="verifyDomain()" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors duration-200">
+                                    <i class="fas fa-sync mr-1"></i>
+                                    Verify
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (!tenant.subdomain && !tenant.customDomain) {
+                console.log('No domains found'); // Debug log
+                html = `
+                    <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <p class="text-gray-500 text-center">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            No custom domains configured yet
+                        </p>
+                    </div>
+                `;
+            }
+            
+            console.log('Setting HTML:', html); // Debug log
+            statusContent.innerHTML = html;
+        }
+        
+        async function saveSubdomain() {
+            const subdomain = document.getElementById('subdomain').value.trim();
+            const password = document.getElementById('subdomainPassword').value.trim();
+            
+            if (!subdomain) {
+                showNotification('Please enter a subdomain', 'error');
+                return;
+            }
+            
+            if (!password || password.length < 6) {
+                showNotification('Please enter a password (minimum 6 characters)', 'error');
+                return;
+            }
+            
+            try {
+                // Save subdomain
+                const domainResponse = await fetch('/api/tenant/domain', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': apiKey
+                    },
+                    body: JSON.stringify({ subdomain })
+                });
+                
+                if (!domainResponse.ok) {
+                    const error = await domainResponse.json();
+                    showNotification(error.error, 'error');
+                    return;
+                }
+                
+                // Save subdomain password
+                const passwordResponse = await fetch('/api/tenant/subdomain-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': apiKey
+                    },
+                    body: JSON.stringify({ password })
+                });
+                
+                if (!passwordResponse.ok) {
+                    const error = await passwordResponse.json();
+                    showNotification(error.error, 'error');
+                    return;
+                }
+                
+                const subdomainUrl = `https://${subdomain}.docforge.com`;
+                showNotification(`Subdomain saved with password protection! Visit: ${subdomainUrl}`, 'success');
+                loadDomainSettings();
+                
+                // Show immediate feedback
+                setTimeout(() => {
+                    const statusContent = document.getElementById('statusContent');
+                    statusContent.innerHTML = `
+                        <div class="p-3 bg-green-50 rounded-lg border border-green-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <strong class="text-green-800">Subdomain:</strong> 
+                                    <span class="text-green-700">${subdomain}.docforge.com</span>
+                                    <span class="text-green-600 ml-2">✅ Active (Password Protected)</span>
+                                </div>
+                                <a href="${subdomainUrl}" target="_blank" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors duration-200">
+                                    <i class="fas fa-external-link-alt mr-1"></i>
+                                    Visit Now
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }, 500);
+            } catch (error) {
+                showNotification('Failed to save subdomain', 'error');
+            }
+        }
+        
+        async function saveCustomDomain() {
+            const customDomain = document.getElementById('customDomain').value.trim();
+            
+            if (!customDomain) {
+                showNotification('Please enter a custom domain', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/tenant/domain', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': apiKey
+                    },
+                    body: JSON.stringify({ customDomain })
+                });
+                
+                if (response.ok) {
+                    showNotification('Custom domain saved! Please verify DNS setup.', 'success');
+                    loadDomainSettings();
+                } else {
+                    const error = await response.json();
+                    showNotification(error.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Failed to save custom domain', 'error');
+            }
+        }
+        
+        async function verifyDomain() {
+            try {
+                const response = await fetch('/api/tenant/verify-domain', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': apiKey
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.verified) {
+                    showNotification('Domain verified successfully!', 'success');
+                } else {
+                    showNotification('Domain verification failed. Please check DNS settings.', 'error');
+                }
+                
+                loadDomainSettings();
+            } catch (error) {
+                showNotification('Failed to verify domain', 'error');
+            }
+        }
+        
+        async function saveBranding() {
+            const logoUrl = document.getElementById('logoUrl').value.trim();
+            const brandColor = document.getElementById('brandColor').value;
+            const favicon = document.getElementById('favicon').value.trim();
+            const customCSS = document.getElementById('customCSS').value.trim();
+            
+            try {
+                const response = await fetch('/api/tenant/branding', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': apiKey
+                    },
+                    body: JSON.stringify({ logoUrl, brandColor, favicon, customCSS })
+                });
+                
+                if (response.ok) {
+                    showNotification('Branding updated successfully!', 'success');
+                } else {
+                    const error = await response.json();
+                    showNotification(error.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Failed to save branding', 'error');
+            }
+        }
+        
+        // Load server IP for DNS instructions
+        async function loadServerIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                document.getElementById('serverIP').textContent = data.ip;
+            } catch (error) {
+                document.getElementById('serverIP').textContent = 'docforge.com';
+            }
+        }
+        
+        function insertCSS(type) {
+            const textarea = document.getElementById('customCSS');
+            let css = '';
+            
+            switch(type) {
+                case 'nav':
+                    css = `/* Custom Navigation Styling */
+.navbar { 
+    background: linear-gradient(135deg, #667eea, #764ba2) !important; 
+    backdrop-filter: blur(10px);
+}
+.navbar a { 
+    color: white !important; 
+    font-weight: 500;
+}
+.navbar a:hover { 
+    color: #f0f0f0 !important; 
+}`;
+                    break;
+                    
+                case 'cards':
+                    css = `/* Enhanced Card Styling */
+.bg-white { 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; 
+    border-radius: 15px !important; 
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.bg-white:hover { 
+    transform: translateY(-5px); 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important; 
+}`;
+                    break;
+                    
+                case 'typography':
+                    css = `/* Custom Typography */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body { 
+    font-family: 'Inter', sans-serif !important; 
+}
+h1, h2, h3, h4, h5, h6 { 
+    font-family: 'Inter', sans-serif !important; 
+    font-weight: 600;
+}
+.text-xl { 
+    font-size: 1.5rem !important; 
+    line-height: 1.4;
+}`;
+                    break;
+                    
+                case 'buttons':
+                    css = `/* Custom Button Styling */
+.bg-blue-600 { 
+    background: linear-gradient(45deg, #4f46e5, #7c3aed) !important; 
+    transform: translateY(0); 
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+}
+.bg-blue-600:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+}`;
+                    break;
+                    
+                case 'dark':
+                    css = `/* Dark Mode Theme */
+body { 
+    background: #1a1a1a !important; 
+    color: #e5e5e5 !important; 
+}
+.bg-white { 
+    background: #2d2d2d !important; 
+    border-color: #404040 !important;
+}
+.text-gray-900 { 
+    color: #f5f5f5 !important; 
+}
+.text-gray-700 { 
+    color: #d1d1d1 !important; 
+}
+.border-gray-200 { 
+    border-color: #404040 !important; 
+}`;
+                    break;
+                    
+                case 'animations':
+                    css = `/* Smooth Animations */
+* { 
+    transition: all 0.3s ease !important; 
+}
+.bg-white:hover { 
+    transform: translateY(-5px); 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1); 
+}
+.bg-blue-600:hover { 
+    transform: scale(1.05); 
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.bg-white { 
+    animation: fadeIn 0.6s ease-out; 
+}`;
+                    break;
+                    
+                case 'glassmorphism':
+                    css = `/* Glassmorphism Effect */
+.bg-white { 
+    background: rgba(255, 255, 255, 0.1) !important; 
+    backdrop-filter: blur(10px); 
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+.navbar { 
+    background: rgba(255, 255, 255, 0.05) !important; 
+    backdrop-filter: blur(20px); 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}`;
+                    break;
+                    
+                case 'neon':
+                    css = `/* Neon Glow Effect */
+.bg-blue-600 { 
+    background: #4f46e5 !important;
+    box-shadow: 
+        0 0 20px #4f46e5, 
+        0 0 40px #4f46e5, 
+        0 0 60px #4f46e5;
+    border: 2px solid #4f46e5;
+}
+.bg-blue-600:hover { 
+    box-shadow: 
+        0 0 30px #4f46e5, 
+        0 0 60px #4f46e5, 
+        0 0 90px #4f46e5;
+}
+h1, h2, h3 { 
+    text-shadow: 0 0 10px rgba(79, 70, 229, 0.5); 
+}`;
+                    break;
+                    
+                case 'gradient':
+                    css = `/* Animated Gradient Background */
+body { 
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); 
+    background-size: 400% 400%; 
+    animation: gradient 15s ease infinite; 
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.bg-white { 
+    background: rgba(255, 255, 255, 0.9) !important; 
+    backdrop-filter: blur(10px);
+}`;
+                    break;
+            }
+            
+            // Insert CSS into textarea
+            const currentValue = textarea.value;
+            const newValue = currentValue ? currentValue + '\n\n' + css : css;
+            textarea.value = newValue;
+            
+            // Show notification
+            showNotification('CSS example added! You can modify it as needed.', 'success');
+            
+            // Focus textarea
+            textarea.focus();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDomainSettings();
+            loadServerIP();
+        });
+    </script>
+</body>
+</html>

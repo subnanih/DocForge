@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin - DocForge</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="bg-gradient-to-r from-red-600 to-purple-600 text-white p-2 rounded-lg mr-3">
+                        <i class="fas fa-crown text-lg"></i>
+                    </div>
+                    <span class="text-xl font-bold text-gray-900">DocForge Super Admin</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500" id="lastUpdated">Loading...</span>
+                    <button onclick="refreshData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                        <i class="fas fa-sync mr-2"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 p-3 rounded-lg">
+                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">Total Tenants</p>
+                        <p class="text-2xl font-bold text-gray-900" id="totalTenants">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center">
+                    <div class="bg-green-100 p-3 rounded-lg">
+                        <i class="fas fa-globe text-green-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">With Subdomains</p>
+                        <p class="text-2xl font-bold text-gray-900" id="withSubdomains">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center">
+                    <div class="bg-purple-100 p-3 rounded-lg">
+                        <i class="fas fa-link text-purple-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">Custom Domains</p>
+                        <p class="text-2xl font-bold text-gray-900" id="withCustomDomains">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center">
+                    <div class="bg-yellow-100 p-3 rounded-lg">
+                        <i class="fas fa-check-circle text-yellow-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">Verified</p>
+                        <p class="text-2xl font-bold text-gray-900" id="verifiedDomains">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tenants Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900">All Tenants</h2>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tenant</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subdomain</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Custom Domain</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tenantsTable" class="bg-white divide-y divide-gray-200">
+                        <!-- Tenants will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tenant Details Modal -->
+    <div id="tenantModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-gray-900" id="modalTitle">Tenant Details</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="p-6" id="modalContent">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        const adminKey = new URLSearchParams(window.location.search).get('adminKey') || 'docforge-super-admin-2025';
+        
+        if (!adminKey) {
+            alert('Super admin key required');
+            window.location.href = '/';
+        }
+
+        async function loadTenants() {
+            try {
+                const response = await fetch('/api/admin/tenants', {
+                    headers: { 'X-Super-Admin-Key': adminKey }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load tenants');
+                }
+                
+                const data = await response.json();
+                
+                // Update stats
+                document.getElementById('totalTenants').textContent = data.stats.totalTenants;
+                document.getElementById('withSubdomains').textContent = data.stats.withSubdomains;
+                document.getElementById('withCustomDomains').textContent = data.stats.withCustomDomains;
+                document.getElementById('verifiedDomains').textContent = data.stats.verifiedDomains;
+                
+                // Update table
+                const tbody = document.getElementById('tenantsTable');
+                tbody.innerHTML = data.tenants.map(tenant => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    ${tenant.domainSettings?.logoUrl ? 
+                                        `<img class="h-10 w-10 rounded-full object-cover" src="${tenant.domainSettings.logoUrl}" alt="${tenant.name}">` :
+                                        `<div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                                            <span class="text-white font-bold">${tenant.name.charAt(0).toUpperCase()}</span>
+                                        </div>`
+                                    }
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">${tenant.name}</div>
+                                    <div class="text-sm text-gray-500">${tenant.domain}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            ${tenant.subdomain ? 
+                                `<a href="https://${tenant.subdomain}.docforge.com" target="_blank" class="text-blue-600 hover:text-blue-800">
+                                    ${tenant.subdomain}.docforge.com
+                                    <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                </a>` : 
+                                '<span class="text-gray-400">Not set</span>'
+                            }
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            ${tenant.customDomain ? 
+                                `<a href="https://${tenant.customDomain}" target="_blank" class="text-blue-600 hover:text-blue-800">
+                                    ${tenant.customDomain}
+                                    <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                </a>` : 
+                                '<span class="text-gray-400">Not set</span>'
+                            }
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                tenant.domainVerified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                            }">
+                                ${tenant.domainVerified ? 'Verified' : 'Pending'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${new Date(tenant.createdAt).toLocaleDateString()}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="viewTenant('${tenant._id}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <i class="fas fa-eye mr-1"></i>View
+                            </button>
+                            <button onclick="deleteTenant('${tenant._id}', '${tenant.name}')" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash mr-1"></i>Delete
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                document.getElementById('lastUpdated').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+                
+            } catch (error) {
+                console.error('Error loading tenants:', error);
+                showNotification('Failed to load tenants', 'error');
+            }
+        }
+
+        async function viewTenant(tenantId) {
+            try {
+                const response = await fetch(`/api/admin/tenant/${tenantId}`, {
+                    headers: { 'X-Super-Admin-Key': adminKey }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load tenant details');
+                }
+                
+                const tenant = await response.json();
+                
+                document.getElementById('modalTitle').textContent = `${tenant.name} - Details`;
+                document.getElementById('modalContent').innerHTML = `
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Name</label>
+                                <p class="mt-1 text-sm text-gray-900">${tenant.name}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Domain</label>
+                                <p class="mt-1 text-sm text-gray-900">${tenant.domain}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Subdomain</label>
+                                <p class="mt-1 text-sm text-gray-900">${tenant.subdomain || 'Not set'}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Custom Domain</label>
+                                <p class="mt-1 text-sm text-gray-900">${tenant.customDomain || 'Not set'}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Total Pages</label>
+                                <p class="mt-1 text-sm text-gray-900">${tenant.stats?.totalPages || 0}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Created</label>
+                                <p class="mt-1 text-sm text-gray-900">${new Date(tenant.createdAt).toLocaleString()}</p>
+                            </div>
+                        </div>
+                        
+                        ${tenant.domainSettings ? `
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Branding Settings</label>
+                                <div class="bg-gray-50 p-4 rounded-lg space-y-2">
+                                    ${tenant.domainSettings.logoUrl ? `<p><strong>Logo:</strong> <a href="${tenant.domainSettings.logoUrl}" target="_blank" class="text-blue-600">${tenant.domainSettings.logoUrl}</a></p>` : ''}
+                                    ${tenant.domainSettings.brandColor ? `<p><strong>Brand Color:</strong> <span class="inline-block w-4 h-4 rounded" style="background-color: ${tenant.domainSettings.brandColor}"></span> ${tenant.domainSettings.brandColor}</p>` : ''}
+                                    ${tenant.domainSettings.favicon ? `<p><strong>Favicon:</strong> <a href="${tenant.domainSettings.favicon}" target="_blank" class="text-blue-600">${tenant.domainSettings.favicon}</a></p>` : ''}
+                                    ${tenant.domainSettings.customCSS ? `<p><strong>Custom CSS:</strong> ${tenant.domainSettings.customCSS.length} characters</p>` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">API Key</label>
+                            <div class="bg-gray-100 p-3 rounded-lg font-mono text-sm break-all">
+                                ${tenant.apiKey}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('tenantModal').classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('Error loading tenant details:', error);
+                showNotification('Failed to load tenant details', 'error');
+            }
+        }
+
+        async function deleteTenant(tenantId, tenantName) {
+            if (!confirm(`Are you sure you want to delete tenant "${tenantName}"? This action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/admin/tenant/${tenantId}`, {
+                    method: 'DELETE',
+                    headers: { 'X-Super-Admin-Key': adminKey }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to delete tenant');
+                }
+                
+                showNotification(`Tenant "${tenantName}" deleted successfully`, 'success');
+                loadTenants();
+                
+            } catch (error) {
+                console.error('Error deleting tenant:', error);
+                showNotification('Failed to delete tenant', 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('tenantModal').classList.add('hidden');
+        }
+
+        function refreshData() {
+            loadTenants();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTenants();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(loadTenants, 30000);
+        });
+
+        // Close modal on outside click
+        document.getElementById('tenantModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

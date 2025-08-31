@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: microservice-docs-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: microservice-docs-api
+    restart: unless-stopped
+    environment:
+      MONGODB_URI: mongodb://admin:password123@mongodb:27017/microservice-docs?authSource=admin
+      JWT_SECRET: your-jwt-secret-key
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongodb
+
+  docs:
+    build:
+      context: .
+      dockerfile: Dockerfile.docs
+    container_name: microservice-docs-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  mongodb_data:
