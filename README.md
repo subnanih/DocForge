@@ -107,17 +107,6 @@ The MCP server runs on port 3002 and provides these functions:
 - `delete_page(apiKey, pageId)` - Delete page
 - `get_credentials(apiKey)` - Manage API credentials
 
-### AI Integration Example
-```javascript
-// AI can directly create documentation
-const response = await mcp.create_page({
-  apiKey: "your-api-key",
-  title: "AI Test Results",
-  content: "# Test Results\n\nAI-generated analysis...",
-  category: "testing",
-  tags: ["ai", "automated", "results"]
-});
-```
 
 ![MCP Integration](https://github.com/subnanih/DocForge/blob/main/Screenshots/Screenshot%202025-08-31%20at%207.29.06%E2%80%AFPM.png)
 
@@ -199,7 +188,6 @@ pm2 save
 ```
 
 ### Environment Setup
-- Configure MongoDB Atlas for cloud database
 - Set up SSL certificates for custom domains
 - Configure environment variables for production
 
@@ -219,7 +207,7 @@ npm run dev
 ```
 
 ### Areas for Contribution
-- Frontend improvements (React, Vue, or vanilla JS)
+- Frontend improvements
 - Backend features (Node.js, Express, MongoDB)
 - UI/UX design enhancements
 - Documentation and guides
@@ -232,7 +220,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🔗 Links
 
-- **Live Demo**: https://docforge.com
 - **Documentation**: Complete setup guides included
 - **Issues**: Report bugs and request features
 - **Discussions**: Join community conversations
